@@ -18,6 +18,10 @@ var (
 )
 
 func main() {
+	var (
+		bot *tgbotapi.BotAPI
+		err error
+	)
 	kingpin.HelpFlag.Short('h')
 	kingpin.Parse()
 
@@ -32,8 +36,7 @@ func main() {
 	}
 
 	client := &http.Client{Transport: tbTransport}
-	bot, err := tgbotapi.NewBotAPIWithClient(*token, client)
-	if err != nil {
+	if bot, err = tgbotapi.NewBotAPIWithClient(*token, client); err != nil {
 		log.Fatalln(err)
 	}
 
@@ -44,7 +47,7 @@ func main() {
 
 	msg := tgbotapi.NewMessage(*to, text+*message)
 	msg.ParseMode = "markdown"
-	if _, err := bot.Send(msg); err != nil {
+	if _, err = bot.Send(msg); err != nil {
 		log.Fatalln(err)
 	}
 }
