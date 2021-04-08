@@ -1,33 +1,25 @@
 package main
 
 import (
-	"flag"
-	"fmt"
 	"github.com/go-telegram-bot-api/telegram-bot-api"
+	"gopkg.in/alecthomas/kingpin.v2"
 	"log"
 	"net/http"
 	"net/url"
-	"os"
 )
 
 var (
-	token = flag.String("token", "", "Токен бота.")
-	proxy = flag.String("proxy", "", "Прокси (socks5://[user]:[pass]@[host]:[port]). Необязательно.")
+	token   = kingpin.Arg("token", "Токен бота (000:XX-XX-XX-XX).").Required().String()
+	to      = kingpin.Arg("to", "ID получателя (123456789, -123456789).").Required().Int64()
+	message = kingpin.Arg("msg", "Текст сообщения.").Required().String()
 
-	to      = flag.Int64("to", 0, "ID получателя.")
-	subject = flag.String("subject", "", "Тема сообщения. Необязательно.")
-	message = flag.String("message", "", "Текст сообщения.")
-
-	help = flag.Bool("h", false, "Помощь.")
+	proxy   = kingpin.Flag("proxy", "Socks-прокси.").Short('p').String()
+	subject = kingpin.Flag("subject", "Тема сообщения.").Short('s').String()
 )
 
 func main() {
-	flag.Parse()
-
-	if *help || *token == "" || *to == 0 || *message == "" {
-		outHelp()
-		os.Exit(0)
-	}
+	kingpin.HelpFlag.Short('h')
+	kingpin.Parse()
 
 	tbTransport := &http.Transport{}
 	if *proxy != "" {
@@ -55,15 +47,4 @@ func main() {
 	if _, err := bot.Send(msg); err != nil {
 		log.Fatalln(err)
 	}
-}
-
-func outHelp() {
-	fmt.Print(`
-Ключи:
-	-token=…   - токен бота (000:XX-XX-XX-XX).
-	-proxy=…   - socks-прокси. Необязательно.
-	-to=…      - ID получателя (123456789, -123456789).
-	-subject=… - тема сообщения. Необязательно.
-	-message=… - текст сообщения.
-`)
 }
